@@ -1,0 +1,66 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway-service
+  config:
+    import: "optional:nacos:"
+  cloud:
+    nacos:
+      config:
+        import-check:
+          enabled: false
+      discovery:
+        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
+        namespace: ${NACOS_NAMESPACE:}
+        group: ${NACOS_GROUP:DEFAULT_GROUP}
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        # User Service Routes
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/user/**,/api/role/**
+          filters:
+            - StripPrefix=0
+
+        # Book Service Routes
+        - id: book-service
+          uri: lb://book-service
+          predicates:
+            - Path=/api/book/**,/api/category/**
+          filters:
+            - StripPrefix=0
+
+        # Borrow Service Routes
+        - id: borrow-service
+          uri: lb://borrow-service
+          predicates:
+            - Path=/api/borrow/**,/api/stats/**
+          filters:
+            - StripPrefix=0
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:book-manage-system-jwt-secret-key-must-be-at-least-256-bits}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+# Logging
+logging:
+  level:
+    com.book.gateway: DEBUG
+    org.springframework.cloud.gateway: DEBUG
+
+# Knife4j Gateway Configuration
+knife4j:
+  gateway:
+    enabled: true
+    strategy: discover
+    discover:
+      enabled: true
+      version: openapi3

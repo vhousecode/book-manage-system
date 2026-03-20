@@ -1,0 +1,59 @@
+{
+  "version": "1.0.0",
+  "name": "book-manage-system-skills",
+  "description": "图书管理系统开发Agent技能库",
+  "skills": [
+    {
+      "id": "springboot-microservice",
+      "name": "Spring Boot 微服务",
+      "category": "backend",
+      "path": "backend/springboot-microservice",
+      "triggers": [
+        "创建spring boot项目",
+        "微服务架构",
+        "spring cloud网关",
+        "mybatis plus"
+      ]
+    },
+    {
+      "id": "sql-standards",
+      "name": "SQL标准规范",
+      "category": "backend",
+      "path": "backend/sql-standards",
+      "triggers": [
+        "创建数据库表",
+        "数据库设计",
+        "sql脚本",
+        "mysql表"
+      ]
+    },
+    {
+      "id": "react-typescript",
+      "name": "React TypeScript",
+      "category": "frontend",
+      "path": "frontend/react-typescript",
+      "triggers": [
+        "创建react应用",
+        "react typescript项目",
+        "前端应用",
+        "zustand状态管理"
+      ]
+    },
+    {
+      "id": "tailwind-css",
+      "name": "Tailwind CSS",
+      "category": "frontend",
+      "path": "frontend/tailwind-css",
+      "triggers": [
+        "tailwind css样式",
+        "css设计系统",
+        "ui组件样式",
+        "响应式设计"
+      ]
+    }
+  ],
+  "dependencies": {
+    "backend": ["springboot-microservice", "sql-standards"],
+    "frontend": ["react-typescript", "tailwind-css"]
+  }
+}

@@ -1,0 +1,147 @@
+# ==================== 后端 Java/Maven ====================
+# Maven build output
+**/target/
+target/
+
+# Maven wrapper
+.mvn/wrapper/maven-wrapper.jar
+
+# ==================== 前端 Node.js ====================
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build output
+dist/
+build/
+.next/
+out/
+
+# Cache
+.cache/
+.parcel-cache/
+.vite/
+.eslintcache
+.turbo/
+
+# ==================== IDE ====================
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+.idea_modules/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Eclipse
+.classpath
+.project
+.settings/
+bin/
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# ==================== 操作系统 ====================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
+
+# ==================== 日志和临时文件 ====================
+# Log files
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Temp files
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.cache
+
+# ==================== 环境配置 ====================
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Keep example files
+!.env.example
+
+# ==================== 敏感信息 ====================
+# SSL certificates
+*.pem
+*.key
+*.crt
+*.p12
+*.jks
+
+# Secrets
+secrets/
+*.secret
+
+# ==================== 数据库 ====================
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+*.sql.bak
+
+# ==================== 其他 ====================
+# Local assets / temp folders
+question_pic/
+.qoder/
+
+# Docker local data
+mysql_data/
+redis_data/
+
+# Runtime pid files
+*.pid
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Package files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Keep built jars in target (already ignored above)
+!**/src/main/**/*.jar
+
+# Compiled class files
+*.class
+
+# JVM crash logs
+hs_err_pid*
+replay_pid*
