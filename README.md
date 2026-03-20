@@ -6,13 +6,17 @@
 
 ### 后端
 - Java 17
-- Spring Boot 3.x
+- Spring Boot 3.2.3
+- Spring Cloud 2023.0.0
+- Spring Cloud Alibaba 2023.0.0.0-RC1
 - Spring Cloud Gateway（API网关）
-- MyBatis-Plus（ORM框架）
+- MyBatis-Plus 3.5.5（ORM框架）
 - MySQL 8.0（数据库）
+- Druid 1.2.21（连接池）
 - Redis（缓存）
-- Nacos（服务注册与配置中心）
+- Nacos 2.2.3（服务注册中心）
 - JWT（身份认证）
+- Knife4j 4.4.0（API文档）
 
 ### 前端
 - React 18
@@ -46,7 +50,7 @@ book-manage-system/
 ```
                                     ┌─────────────────────────────────────┐
                                     │           Frontend (React)          │
-                                    │         http://localhost:3000       │
+                                    │         http://localhost:5173       │
                                     └─────────────────┬───────────────────┘
                                                       │
                                                       ▼
@@ -64,9 +68,9 @@ book-manage-system/
           │ User Service │  │Book Service  │  │Borrow Service│  │    Nacos     │  │    MySQL     │
           │   (8081)     │  │   (8082)     │  │   (8083)     │  │   (8848)     │  │   (3306)     │
           │              │  │              │  │              │  │              │  │              │
-          │ - 用户认证   │  │ - 图书管理   │  │ - 借阅管理   │  │ - 服务注册   │  │ - 数据存储   │
-          │ - 角色权限   │  │ - 分类管理   │  │ - 归还处理   │  │ - 配置中心   │  │              │
-          │ - 用户管理   │  │ - 库存管理   │  │ - 统计分析   │  │              │  │              │
+          │ - 用户认证   │  │ - 图书管理   │   │ - 借阅管理    │  │ - 服务注册    │  │ - 数据存储    │
+          │ - 角色权限   │  │ - 分类管理   │   │ - 归还处理    │  │              │  │              │
+          │ - 用户管理   │  │ - 库存管理   │   │ - 统计分析    │  │              │  │              │
           └──────────────┘  └──────────────┘  └──────────────┘  └──────────────┘  └──────────────┘
 ```
 
@@ -83,77 +87,84 @@ book-manage-system/
 - JDK 17+
 - Maven 3.8+
 - Node.js 18+
-- MySQL 8.0+
-- Redis（可选）
-- Docker & Docker Compose（容器化部署）
+- Docker & Docker Compose（推荐，一键启动所有依赖服务）
 
-### 1. 数据库初始化
-
-```sql
--- 创建数据库
-CREATE DATABASE book_manage CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- 执行建表脚本
-source sql/schema.sql;
-
--- 导入初始数据
-source sql/data.sql;
-```
-
-### 2. 后端启动
+### 方式一：Docker 一键部署（推荐）
 
 ```bash
-# 进入后端目录
-cd backend
-
-# 构建所有模块
-mvn clean install -DskipTests
-
-# 按顺序启动服务：
-# 1. 启动网关
-java -jar gateway/target/gateway-1.0.0.jar
-
-# 2. 启动用户服务
-java -jar user-service/target/user-service-1.0.0.jar
-
-# 3. 启动图书服务
-java -jar book-service/target/book-service-1.0.0.jar
-
-# 4. 启动借阅服务
-java -jar borrow-service/target/borrow-service-1.0.0.jar
-```
-
-### 3. 前端启动
-
-```bash
-# 进入前端目录
-cd frontend
-
-# 安装依赖
-npm install
-
-# 启动开发服务器
-npm run dev
-
-# 生产构建
-npm run build
-```
-
-### 4. Docker 部署
-
-```bash
-# 复制环境变量配置
-cp .env.example .env
-
-# 启动所有服务
+# 启动所有服务（Nacos、MySQL、Redis、后端服务、前端）
 docker-compose up -d
 
+# 查看服务状态
+docker-compose ps
+
 # 查看日志
-docker-compose logs -f
+docker-compose logs -f [服务名]
 
 # 停止所有服务
 docker-compose down
 ```
+
+**访问地址：**
+- 前端页面：http://localhost:3000（Docker）或 http://localhost:5173（本地开发）
+- Nacos 控制台：http://localhost:8848/nacos （默认无认证）
+- API 网关：http://localhost:8080
+
+### 方式二：本地开发模式
+
+#### 1. 启动基础设施（使用 Docker）
+
+```bash
+# 仅启动 MySQL、Redis、Nacos
+docker-compose up -d mysql redis nacos
+```
+
+等待 Nacos 启动完成（约 30-60 秒），访问 http://localhost:8848/nacos 确认正常。
+
+#### 2. 初始化数据库
+
+```bash
+# 进入 MySQL 容器
+docker exec -it book-mysql mysql -uroot -proot123456
+
+# 在 MySQL 中执行
+source /docker-entrypoint-initdb.d/01-schema.sql;
+source /docker-entrypoint-initdb.d/02-data.sql;
+```
+
+#### 3. 启动后端服务
+
+**IDEA 运行配置：**
+
+在启动配置的 **Environment variables** 中添加：
+```
+NACOS_SERVER_ADDR=127.0.0.1:8848;MYSQL_HOST=localhost;MYSQL_PORT=3306;MYSQL_DB=book_manage;MYSQL_USER=root;MYSQL_PASSWORD=root123456
+```
+
+**命令行启动：**
+
+```bash
+cd backend
+
+# 构建
+mvn clean install -DskipTests
+
+# 启动服务（在 separate terminals 中执行）
+cd gateway && mvn spring-boot:run -Dspring-boot.run.arguments="--NACOS_SERVER_ADDR=127.0.0.1:8848"
+cd user-service && mvn spring-boot:run -Dspring-boot.run.arguments="--NACOS_SERVER_ADDR=127.0.0.1:8848"
+cd book-service && mvn spring-boot:run -Dspring-boot.run.arguments="--NACOS_SERVER_ADDR=127.0.0.1:8848"
+cd borrow-service && mvn spring-boot:run -Dspring-boot.run.arguments="--NACOS_SERVER_ADDR=127.0.0.1:8848"
+```
+
+#### 4. 启动前端
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+前端开发服务器启动后，访问 http://localhost:5173
 
 ## API 文档
 
@@ -202,18 +213,89 @@ docker-compose down
 
 ## 配置说明
 
-### 后端配置
-修改各服务模块的 `application.yml`：
-- 数据库连接信息
-- Redis 连接信息
-- Nacos 服务地址
-- JWT 配置
+### 1. Nacos 配置
 
-### 前端配置
-创建 `.env` 文件：
+项目使用 Nacos 作为**服务注册中心**（不使用配置中心功能）。
+
+**docker-compose.yml 中的 Nacos 配置：**
+```yaml
+nacos:
+  image: nacos/nacos-server:v2.2.3
+  environment:
+    MODE: standalone              # 单机模式
+    PREFER_HOST_MODE: hostname
+    NACOS_AUTH_ENABLE: "false"    # 禁用认证（开发环境）
+    JVM_XMS: 256m
+    JVM_XMX: 512m
+  ports:
+    - "8848:8848"   # HTTP 端口
+    - "9848:9848"   # gRPC 端口
+```
+
+**说明：**
+- Nacos 使用内置 Derby 数据库，无需外部 MySQL
+- 开发环境已禁用认证，可直接访问
+- 如需启用认证，将 `NACOS_AUTH_ENABLE` 改为 `"true"`
+- 仅使用 Nacos 服务注册发现功能，不使用配置中心
+
+### 2. 后端服务配置
+
+各服务的 `application.yml` 默认配置：
+
+```yaml
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_SERVER_ADDR:127.0.0.1:8848}  # Nacos 地址
+        namespace: ${NACOS_NAMESPACE:public}
+        group: ${NACOS_GROUP:DEFAULT_GROUP}
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DB:book_manage}?
+        useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:root123456}
+```
+
+**环境变量说明：**
+
+| 变量名 | 默认值 | 说明 |
+|--------|--------|------|
+| `NACOS_SERVER_ADDR` | 127.0.0.1:8848 | Nacos 服务地址 |
+| `NACOS_NAMESPACE` | public | Nacos 命名空间 |
+| `NACOS_GROUP` | DEFAULT_GROUP | Nacos 服务分组 |
+| `MYSQL_HOST` | localhost | MySQL 主机地址 |
+| `MYSQL_PORT` | 3306 | MySQL 端口 |
+| `MYSQL_DB` | book_manage | 数据库名 |
+| `MYSQL_USER` | root | 数据库用户名 |
+| `MYSQL_PASSWORD` | root123456 | 数据库密码 |
+
+### 3. 前端配置
+
+创建 `frontend/.env` 文件：
 ```env
+# 开发环境 API 地址
 VITE_API_BASE_URL=http://localhost:8080
 ```
+
+生产环境构建时：
+```bash
+# 使用生产环境配置
+VITE_API_BASE_URL=http://your-production-domain:8080 npm run build
+```
+
+### 4. 密码安全说明
+
+**密码传输与存储机制：**
+
+1. **前端传输**：密码以明文形式通过 HTTPS 传输到后端
+2. **后端存储**：后端使用 BCrypt 算法对密码进行哈希处理后存储到数据库
+3. **密码验证**：登录时，后端使用 `PasswordUtils.matches()` 对比明文密码和数据库中的哈希值
+
+**安全建议：**
+- 生产环境务必启用 HTTPS，确保密码传输安全
+- 数据库中存储的是 BCrypt 哈希值，无法反解出原始密码
+- 建议定期更新 JWT Secret 和数据库密码
 
 ## 开发指南
 
@@ -223,6 +305,17 @@ VITE_API_BASE_URL=http://localhost:8080
 - API接口详细规范
 - 前端技术架构
 - 部署方案
+
+## 更新日志
+
+### 2026-03-20
+- 优化 Nacos 配置，使用内置 Derby 数据库，无需外部 MySQL
+- 禁用 Nacos 认证（开发环境），访问无需登录
+- 移除后端服务 Nacos 配置中心依赖，仅使用服务发现功能
+- 前端开发端口改为 5173（避免与 Docker 前端容器 3000 端口冲突）
+- 统一数据库名称为 `book_manage`
+- 添加密码安全说明文档
+- 完善 README 文档结构
 
 ## 许可证
 

@@ -4,16 +4,11 @@ server:
 spring:
   application:
     name: gateway-service
-  config:
-    import: "optional:nacos:"
   cloud:
     nacos:
-      config:
-        import-check:
-          enabled: false
       discovery:
-        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
-        namespace: ${NACOS_NAMESPACE:}
+        server-addr: ${NACOS_SERVER_ADDR:127.0.0.1:8848}
+        namespace: ${NACOS_NAMESPACE:public}
         group: ${NACOS_GROUP:DEFAULT_GROUP}
     gateway:
       discovery:

@@ -22,7 +22,7 @@ public class LoginRequest implements Serializable {
     private String username;
 
     @NotBlank(message = "Password cannot be empty")
-    @Size(min = 6, max = 20, message = "Password must be between 6 and 20 characters")
+    @Size(min = 4, max = 20, message = "Password must be between 4 and 20 characters")
     @Schema(description = "Password", example = "123456")
     private String password;
 }

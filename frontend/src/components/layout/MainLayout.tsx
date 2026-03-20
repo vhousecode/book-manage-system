@@ -1,4 +1,4 @@
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
+import { Outlet, Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { 
   LayoutDashboard, 
   BookOpen, 
@@ -44,7 +44,7 @@ export default function MainLayout() {
   }
 
   if (!isAuthenticated) {
-    return null
+    return <Navigate to="/login" replace />
   }
 
   return (

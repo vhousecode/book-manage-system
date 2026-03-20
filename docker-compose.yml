@@ -11,7 +11,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root123456
-      MYSQL_DATABASE: book_manage
+      MYSQL_DATABASE: book_manage_system
       MYSQL_USER: bookuser
       MYSQL_PASSWORD: book123456
       TZ: Asia/Shanghai
@@ -73,6 +73,9 @@ services:
       NACOS_SERVER_ADDR: nacos:8848
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
+      MYSQL_DB: book_manage_system
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root123456
     ports:
       - "8080:8080"
     depends_on:
@@ -95,6 +98,9 @@ services:
       NACOS_SERVER_ADDR: nacos:8848
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
+      MYSQL_DB: book_manage_system
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root123456
     ports:
       - "8081:8081"
     depends_on:
@@ -117,6 +123,9 @@ services:
       NACOS_SERVER_ADDR: nacos:8848
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
+      MYSQL_DB: book_manage_system
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root123456
     ports:
       - "8082:8082"
     depends_on:
@@ -139,6 +148,9 @@ services:
       NACOS_SERVER_ADDR: nacos:8848
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
+      MYSQL_DB: book_manage_system
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root123456
     ports:
       - "8083:8083"
     depends_on:
