@@ -115,6 +115,7 @@ secrets/
 # Local assets / temp folders
 question_pic/
 .qoder/
+.claude/
 
 # Docker local data
 mysql_data/
