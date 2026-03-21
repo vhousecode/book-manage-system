@@ -1,3 +1,4 @@
+import { Toaster } from 'react-hot-toast'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useUserStore } from '@/stores/userStore'
 import MainLayout from '@/components/layout/MainLayout'
@@ -31,9 +32,11 @@ function ProtectedRoute({ children, adminOnly = false }: { children: React.React
 
 function App() {
   return (
-    <Routes>
-      {/* Public Routes */}
-      <Route path="/login" element={<Login />} />
+    <>
+      <Toaster position="top-right" />
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
       {/* Protected Routes */}
@@ -81,6 +84,7 @@ function App() {
       {/* 404 */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </>
   )
 }
 

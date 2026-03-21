@@ -1,16 +1,17 @@
-import { useQuery } from '@tanstack/react-query'
+﻿import { useQuery } from '@tanstack/react-query'
 import { statsApi } from '@/api/stats'
 import { useUserStore } from '@/stores/userStore'
-import { 
-  BookOpen, 
-  Users, 
-  Clock, 
+import {
+  BookOpen,
+  Users,
+  Clock,
   TrendingUp,
   AlertTriangle,
   ArrowUpRight,
   ArrowDownRight
 } from 'lucide-react'
 import clsx from 'clsx'
+import { Skeleton } from '@/components/ui/Skeleton'
 
 export default function Dashboard() {
   const { user } = useUserStore()
@@ -34,8 +35,22 @@ export default function Dashboard() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      <div className="space-y-6">
+        <div>
+          <Skeleton className="h-8 w-48 mb-2" />
+          <Skeleton className="h-5 w-64" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="card h-28 flex flex-col justify-center">
+              <Skeleton className="h-12 w-full" />
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="card h-64"><Skeleton className="h-full w-full" /></div>
+          <div className="card h-64"><Skeleton className="h-full w-full" /></div>
+        </div>
       </div>
     )
   }
@@ -58,7 +73,7 @@ export default function Dashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat) => (
-          <div key={stat.name} className="card">
+          <div key={stat.name} className="card hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">{stat.name}</p>
@@ -106,15 +121,15 @@ export default function Dashboard() {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Popular Books</h3>
           <div className="space-y-3">
             {hotBooks?.map((book) => (
-              <div key={book.bookId} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+              <div key={book.bookId} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors px-2 rounded -mx-2">
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium text-gray-400">#{book.rank}</span>
+                  <span className="text-sm font-medium text-gray-400 w-4">#{book.rank}</span>
                   <div>
                     <p className="text-sm font-medium text-gray-900">{book.title}</p>
                     <p className="text-xs text-gray-500">{book.author}</p>
                   </div>
                 </div>
-                <span className="text-sm text-primary-600 font-medium">{book.borrowCount} borrows</span>
+                <span className="text-sm text-primary-600 font-medium bg-primary-50 px-2 py-1 rounded-full">{book.borrowCount} borrows</span>
               </div>
             ))}
           </div>
@@ -127,7 +142,7 @@ export default function Dashboard() {
 // User Dashboard for non-admin users
 function UserDashboard() {
   const { user } = useUserStore()
-  
+
   return (
     <div className="space-y-6">
       <div>
@@ -136,21 +151,21 @@ function UserDashboard() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="card text-center">
+        <div className="card text-center hover:shadow-md transition-shadow cursor-pointer">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mb-4">
             <BookOpen className="w-8 h-8 text-primary-600" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900">Browse Books</h3>
           <p className="text-sm text-gray-500 mt-2">Search and explore our collection</p>
         </div>
-        <div className="card text-center">
+        <div className="card text-center hover:shadow-md transition-shadow cursor-pointer">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
             <Clock className="w-8 h-8 text-green-600" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900">My Borrowings</h3>
           <p className="text-sm text-gray-500 mt-2">View your borrow history</p>
         </div>
-        <div className="card text-center">
+        <div className="card text-center hover:shadow-md transition-shadow cursor-pointer">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
             <TrendingUp className="w-8 h-8 text-blue-600" />
           </div>

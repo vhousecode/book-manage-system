@@ -21,11 +21,12 @@
 ### 前端
 - React 18
 - TypeScript
-- Tailwind CSS
+- Tailwind CSS (配合 @headlessui/react 实现高可用组件)
 - Vite（构建工具）
 - React Query（数据请求）
 - Zustand（状态管理）
 - ECharts（图表库）
+- react-hot-toast (全局非阻塞状态提示)
 
 ## 项目结构
 

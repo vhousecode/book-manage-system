@@ -1,21 +1,31 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { bookApi, categoryApi } from '@/api/book'
 import type { PageParams } from '@/types'
-import { Search, Plus, Edit, Trash2, Eye } from 'lucide-react'
+import { Search, Plus, Edit, Trash2, Eye, Library } from 'lucide-react'
 import clsx from 'clsx'
+import { toast } from 'react-hot-toast'
+import { Dialog } from '@/components/ui/Dialog'
+import { Skeleton } from '@/components/ui/Skeleton'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { useDebounce } from '@/hooks/useDebounce'
 
 export default function BookList() {
   const [params, setParams] = useState<PageParams>({ pageNum: 1, pageSize: 10 })
   const [searchTerm, setSearchTerm] = useState('')
+  const debouncedSearchTerm = useDebounce(searchTerm, 500)
   const [selectedCategory, setSelectedCategory] = useState<number>()
   const [statusFilter, setStatusFilter] = useState<number>()
 
+  // Delete modal state
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [bookToDelete, setBookToDelete] = useState<number | null>(null)
+
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ['books', params, selectedCategory, statusFilter],
+    queryKey: ['books', params, selectedCategory, statusFilter, debouncedSearchTerm],
     queryFn: () => bookApi.getList({
-      title: searchTerm,
+      title: debouncedSearchTerm,
       categoryId: selectedCategory,
       status: statusFilter,
       ...params,
@@ -29,18 +39,27 @@ export default function BookList() {
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => bookApi.delete(id),
-    onSuccess: () => refetch(),
+    onSuccess: () => {
+      toast.success('Book deleted successfully')
+      setIsDeleteDialogOpen(false)
+      setBookToDelete(null)
+      refetch()
+    },
+    onError: () => {
+      toast.error('Failed to delete book')
+      setIsDeleteDialogOpen(false)
+    }
   })
 
-  const handleDelete = (id: number) => {
-    if (window.confirm('Are you sure you want to delete this book?')) {
-      deleteMutation.mutate(id)
-    }
+  const confirmDelete = (id: number) => {
+    setBookToDelete(id)
+    setIsDeleteDialogOpen(true)
   }
 
-  const handleSearch = () => {
-    setParams({ ...params, pageNum: 1 })
-    refetch()
+  const handleDelete = () => {
+    if (bookToDelete !== null) {
+      deleteMutation.mutate(bookToDelete)
+    }
   }
 
   const handlePageChange = (page: number) => {
@@ -69,17 +88,22 @@ export default function BookList() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search by title or author..."
+                placeholder="Search by title or author... (Auto-search on type)"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value)
+                  setParams({ ...params, pageNum: 1 })
+                }}
                 className="input pl-10"
               />
             </div>
           </div>
           <select
             value={selectedCategory || ''}
-            onChange={(e) => setSelectedCategory(Number(e.target.value) || undefined)}
+            onChange={(e) => {
+              setSelectedCategory(Number(e.target.value) || undefined)
+              setParams({ ...params, pageNum: 1 })
+            }}
             className="input w-48"
           >
             <option value="">All Categories</option>
@@ -89,25 +113,44 @@ export default function BookList() {
           </select>
           <select
             value={statusFilter ?? ''}
-            onChange={(e) => setStatusFilter(Number(e.target.value) || undefined)}
+            onChange={(e) => {
+              setStatusFilter(Number(e.target.value) || undefined)
+              setParams({ ...params, pageNum: 1 })
+            }}
             className="input w-32"
           >
             <option value="">All Status</option>
             <option value="1">Available</option>
             <option value="0">Disabled</option>
           </select>
-          <button onClick={handleSearch} className="btn btn-primary">
-            Search
-          </button>
         </div>
       </div>
 
       {/* Table */}
       <div className="card overflow-hidden">
         {isLoading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          <div className="p-6 space-y-4">
+            <div className="flex gap-4">
+              <Skeleton className="h-4 w-1/4" />
+              <Skeleton className="h-4 w-1/4" />
+              <Skeleton className="h-4 w-1/4" />
+              <Skeleton className="h-4 w-1/4" />
+            </div>
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex gap-4 items-center">
+                <Skeleton className="w-10 h-14" />
+                <Skeleton className="h-8 flex-1" />
+                <Skeleton className="h-8 flex-1" />
+                <Skeleton className="h-8 w-24" />
+              </div>
+            ))}
           </div>
+        ) : data?.list?.length === 0 ? (
+          <EmptyState 
+            icon={<Library className="h-10 w-10 text-gray-400" />}
+            title="No books found"
+            description="Try adjusting your search or filters, or add a new book to the library."
+          />
         ) : (
           <>
             <div className="overflow-x-auto">
@@ -140,8 +183,8 @@ export default function BookList() {
                       <td>{book.categoryName || '-'}</td>
                       <td>
                         <span className={clsx(
-                          'font-medium',
-                          book.availableStock > 0 ? 'text-green-600' : 'text-red-600'
+                          'font-medium px-2.5 py-1 rounded-full text-xs',
+                          book.availableStock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                         )}>
                           {book.availableStock}/{book.stock}
                         </span>
@@ -159,18 +202,21 @@ export default function BookList() {
                           <Link
                             to={`/books/${book.id}`}
                             className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded"
+                            title="View Details"
                           >
                             <Eye className="w-4 h-4" />
                           </Link>
                           <Link
                             to={`/books/${book.id}/edit`}
                             className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                            title="Edit"
                           >
                             <Edit className="w-4 h-4" />
                           </Link>
                           <button
-                            onClick={() => handleDelete(book.id)}
-                            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
+                            onClick={() => confirmDelete(book.id)}
+                            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                            title="Delete"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -210,6 +256,33 @@ export default function BookList() {
           </>
         )}
       </div>
+
+      <Dialog 
+        isOpen={isDeleteDialogOpen} 
+        onClose={() => setIsDeleteDialogOpen(false)}
+        title="Delete Book"
+        footer={
+          <>
+            <button 
+              onClick={() => setIsDeleteDialogOpen(false)} 
+              className="btn bg-gray-100 text-gray-700 hover:bg-gray-200"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={handleDelete} 
+              className="btn bg-red-600 text-white hover:bg-red-700"
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? 'Deleting...' : 'Delete Book'}
+            </button>
+          </>
+        }
+      >
+        <p className="text-sm text-gray-500">
+          Are you sure you want to delete this book? This action cannot be undone.
+        </p>
+      </Dialog>
     </div>
   )
 }
