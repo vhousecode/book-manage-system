@@ -1,3 +1,8 @@
+---
+name: react-typescript
+description: 创建生产级别的React应用，包含TypeScript类型系统、组件模式、状态管理和API集成。当用户请求创建React应用、使用React和TypeScript开发前端、实现现代UI和组件化架构、需要状态管理和API集成时使用此技能。
+---
+
 # React TypeScript 开发技能
 
 ## 技能描述

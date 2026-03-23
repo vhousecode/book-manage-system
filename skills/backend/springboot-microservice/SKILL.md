@@ -1,3 +1,8 @@
+---
+name: spring-boot-microservice
+description: 创建生产级别的Spring Boot微服务项目，包含服务架构、数据库设计、API规范和Docker部署配置。当用户请求创建Spring Boot项目、微服务架构、Spring Cloud网关、MyBatis Plus数据库设计或Docker部署配置时使用此技能。
+---
+
 # Spring Boot 微服务开发技能
 
 ## 技能描述

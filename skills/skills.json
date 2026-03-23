@@ -4,7 +4,7 @@
   "description": "图书管理系统开发Agent技能库",
   "skills": [
     {
-      "id": "springboot-microservice",
+      "id": "spring-boot-microservice",
       "name": "Spring Boot 微服务",
       "category": "backend",
       "path": "backend/springboot-microservice",

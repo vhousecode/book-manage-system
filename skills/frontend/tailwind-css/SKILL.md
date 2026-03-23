@@ -1,3 +1,8 @@
+---
+name: tailwind-css
+description: 使用Tailwind CSS进行一致的UI样式设计，包含自定义设计令牌、组件模式和响应式设计最佳实践。当用户需要使用Tailwind CSS创建UI组件、设置Tailwind配置、实现响应式设计、创建可复用的CSS工具类模式时使用此技能。
+---
+
 # Tailwind CSS 样式技能
 
 ## 技能描述
